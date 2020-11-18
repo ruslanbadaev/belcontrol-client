@@ -1,0 +1,1 @@
+final String host = 'http://80.78.248.203:3388';
