@@ -8,6 +8,7 @@ import 'package:flutter_weather_bg/flutter_weather_bg.dart';
 import '../constants.dart' as constants;
 import '../utils/shared_preferences.dart';
 import '../utils/request.dart';
+//import '../pages/home_page.dart';
 
 class AuthPage extends StatefulWidget {
   AuthPage({Key key, this.title}) : super(key: key);
@@ -21,6 +22,7 @@ class _AuthPageState extends State<AuthPage> {
   final String host = constants.host;
   bool _passwordVisible = false;
   bool _isRegister = false;
+  //bool _isAuth = false;
   var nameController = TextEditingController();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
@@ -31,7 +33,24 @@ class _AuthPageState extends State<AuthPage> {
       child: Center(
           child: Stack(children: [
         WeatherBg(
-            weatherType: WeatherType.sunnyNight,
+      /* 
+      heavyRainy,
+      heavySnow,
+      middleSnow,
+      thunder,
+      lightRainy,
+      lightSnow,
+      sunnyNight,
+      sunny,
+      cloudy,
+      cloudyNight,
+      middleRainy,
+      overcast,
+      hazy, 
+      foggy, 
+      dusty,
+      */
+            weatherType: WeatherType.overcast,
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height),
 /*         Center(
@@ -162,9 +181,9 @@ class _AuthPageState extends State<AuthPage> {
                       side: BorderSide(color: Colors.blue),
                       borderRadius: BorderRadius.circular(25.0)),
                   onPressed: () async =>
-                      Request.checkAuth(await SharedPreferencesRequest.getUserId()),
-
-                  /*  _isRegister
+                      //Request.checkAuth(await SharedPreferencesRequest.getUserId()),
+  
+                    _isRegister
                       ? authRequest('register', {
                           'name': nameController.text.toString(),
                           'email':
@@ -175,7 +194,7 @@ class _AuthPageState extends State<AuthPage> {
                           'email':
                               emailController.text.toString().toLowerCase(),
                           'password': passwordController.text.toString()
-                        }), */
+                        }), 
                   child: Text(
                     _isRegister ? 'Регистрация' : 'Войти',
                     style: TextStyle(
@@ -201,114 +220,14 @@ class _AuthPageState extends State<AuthPage> {
         )),
       ])),
 
-      /* 
-      heavyRainy,
-  heavySnow,
-  middleSnow,
-  thunder,
-  lightRainy,
-  lightSnow,
-  sunnyNight,
-  sunny,
-  cloudy,
-  cloudyNight,
-  middleRainy,
-  overcast,
-  hazy, // 霾
-  foggy, // 雾
-  dusty,
-      */
+
     ));
   }
 
-  /* void getAuthModal() {
-    var alertStyle = AlertStyle(
-      animationType: AnimationType.fromBottom,
-      isCloseButton: false,
-      //isOverlayTapDismiss: false,
-      descStyle: TextStyle(fontWeight: FontWeight.bold),
-      descTextAlign: TextAlign.start,
-      animationDuration: Duration(milliseconds: 400),
-      alertBorder: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(25.0),
-        side: BorderSide(
-          color: Colors.grey,
-        ),
-      ),
-      titleStyle: TextStyle(
-        color: Colors.blue,
-      ),
-      alertAlignment: Alignment.center,
-    );
-    Alert(
-        context: context,
-        style: alertStyle,
-        title: "Авторизация $_passwordVisible",
-        content: Container(
-            width: MediaQuery.of(context).size.width * 0.8,
-            child: Column(children: <Widget>[
-              //Text('Авторизация', style: TextStyle(fontSize: 32)),
-              Container(
-                  child: TextFormField(
-                decoration: InputDecoration(
-                  icon: Icon(
-                    Icons.login_rounded,
-                    size: 28,
-                  ),
-                  //labelText: 'Описание',
-                ),
-              )),
-              Container(
-                  child: TextFormField(
-                decoration: InputDecoration(
-                  icon: Icon(
-                    Icons.lock_open_rounded,
-                    size: 28,
-                  ),
-                  labelText: 'Описание',
-                ),
-              )),
-              TextFormField(
-                keyboardType: TextInputType.text,
-                controller: nameController,
-                obscureText: !_passwordVisible,
-                initialValue: 'aaaa', //This will obscure text dynamically
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  hintText: 'Enter your password',
-                  // Here is key idea
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      // Based on passwordVisible state choose the icon
-                      _passwordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: Theme.of(context).primaryColorDark,
-                    ),
-                    onPressed: () {
-                      // Update the state i.e. toogle the state of passwordVisible variable
-                      setState(() {
-                        _passwordVisible = !_passwordVisible;
-                      });
-                    },
-                  ),
-                ),
-              ),
-            ])),
-        buttons: [
-          DialogButton(
-            radius: new BorderRadius.circular(25.0),
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              "Принять",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-          ),
-        ]).show();
-  }
- */
-  void _onFloatingActionButtonPressed() {}
 
+
+
+  
   void authRequest(authType, body) async {
     EasyLoading.show(status: 'Ожидайте...');
     try {
@@ -327,6 +246,8 @@ class _AuthPageState extends State<AuthPage> {
           'name': jsonDecode(response.body)['user']['name'],
           'email': jsonDecode(response.body)['user']['email'],
         });
+        await Request.checkAuth(
+              context, await SharedPreferencesRequest.getUserId()) ;
       } else {
         EasyLoading.showError('Ошибка: ${jsonDecode(response.body)}');
       }

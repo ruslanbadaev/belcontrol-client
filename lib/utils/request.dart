@@ -4,15 +4,17 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import '../utils/shared_preferences.dart';
+import '../pages/home_page.dart';
+import '../pages/auth_page.dart';
+import '../pages/maps_page.dart';
 import 'package:http/http.dart' as http;
 import '../constants.dart' as constants;
 
 final String host = constants.host;
 
 class Request {
-  static Future<bool> checkAuth(id) async {
+  static Future<bool> checkAuth(context, id) async {
     try {
-      EasyLoading.show(status: 'Ожидайте...');
       var url = '$host/users/$id';
       print(await SharedPreferencesRequest.getToken());
       print(url);
@@ -24,19 +26,31 @@ class Request {
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
       if (response.statusCode == 200) {
-        print(' ${jsonDecode(response.body)['user']['name']}');
+        print(' ${jsonDecode(response.body)['name']}');
         SharedPreferencesRequest.setUser({
-          'id': jsonDecode(response.body)['user']['_id'],
-          'name': jsonDecode(response.body)['user']['name'],
-          'email': jsonDecode(response.body)['user']['email'],
+          'id': jsonDecode(response.body)['_id'],
+          'name': jsonDecode(response.body)['name'],
+          'email': jsonDecode(response.body)['email'],
         });
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MyHomePage()),
+           //MaterialPageRoute(builder: (context) => MyHomePage()),
+        );
         return true;
       } else {
-        EasyLoading.showError('Ошибка: ${jsonDecode(response.body)}');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AuthPage()),
+        );
         return false;
       }
     } catch (error) {
-      EasyLoading.showError('Ошибка: $error');
+      print(error);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AuthPage()),
+      ); 
       return false;
     }
   }

@@ -6,6 +6,8 @@ import 'applications_page.dart';
 import 'maps_page.dart';
 import 'account_page.dart';
 import 'auth_page.dart';
+import '../utils/request.dart';
+import '../utils/shared_preferences.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -15,6 +17,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool _isAuth = true;
+
+
   int _currentIndex = 1;
   final List<Widget> _children = [
     ApplicationsPage(),
@@ -26,14 +31,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _isAuth()
+      appBar: _isAuth
           ? AppBar(
               title: Text('Название приложения и логотип'),
             )
           : null,
-      body: _isAuth() ? _children[_currentIndex] : AuthPage(),
+      body: _isAuth ? _children[_currentIndex] : AuthPage(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: _isAuth()
+      bottomNavigationBar: _isAuth
           ? AnimatedBottomNavigationBar(
               icons: <IconData>[
                 Icons.list_alt_rounded,
@@ -55,16 +60,12 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  bool _isAuth() {
-    try {
-      
-    } catch (e) {
-      
-    }
-
+/*   bool _isAuth() {
+    try {} catch (e) {}
 
     return false;
-  }
+  } */
+//Request.checkAuth(await SharedPreferencesRequest.getUserId())
 
   void onTabTapped(int index) {
     print(index);

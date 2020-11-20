@@ -5,6 +5,7 @@ import 'package:latlong/latlong.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:group_radio_button/group_radio_button.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';
@@ -18,6 +19,7 @@ import 'package:image_gallery/image_gallery.dart';
 import 'package:image_picker/image_picker.dart';
 import '../utils/toast.dart';
 import '../main.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class MapsPage extends StatefulWidget {
   MapsPage({Key key, this.title}) : super(key: key);
@@ -37,6 +39,8 @@ Widget _regExpAddress(data, fontSize) {
     style: TextStyle(fontSize: fontSize),
   );
 }
+
+String test = 'toster';
 
 String _address = '';
 bool _activePointer = false;
@@ -93,18 +97,22 @@ class _MapsPageState extends State<MapsPage> {
   List<File> _imagesList = [];
   final picker = ImagePicker();
 
-  Future getImage() async {
+  Future getImage(context) async {
+    Navigator.pop(context);
+    //final pickedFile = await picker.getImage(source: ImageSource.camera);
     //final pickedFile = await picker.getImage(source: ImageSource.camera);
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
 
-    setState(() {
-      if (pickedFile != null) {
+    if (pickedFile != null) {
+      await setState(() {
         _image = File(pickedFile.path);
         _imagesList.add(_image);
-      } else {
-        print('No image selected.');
-      }
-    });
+      });
+    } else {
+      print('No image selected.');
+    }
+
+    acceptNewFlag();
   }
 
   Future<void> loadImageList() async {
@@ -161,13 +169,17 @@ class _MapsPageState extends State<MapsPage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                 _activePointer
-                                    ? IconShadowWidget(
+                                    ? /* IconShadowWidget(
                                         Icon(
                                           Icons.filter_tilt_shift_rounded,
                                           size: 36,
                                           color: Colors.blue,
                                         ),
                                         shadowColor: Colors.blue.shade300,
+                                      ) */
+                                    SpinKitDoubleBounce(
+                                        color: Colors.red,
+                                        size: 36.0,
                                       )
                                     : null,
 /*                     Text(
@@ -242,6 +254,195 @@ class _MapsPageState extends State<MapsPage> {
     MyToast.show("Укажите с помощью флага место нарушения");
   }
 
+  Future acceptNewFlag() {
+    showMaterialModalBottomSheet(
+      //barrierColor: Colors.white,
+      duration: Duration(milliseconds: 600),
+      backgroundColor: Colors.white,
+
+      expand: false,
+      context: context,
+      builder: (BuildContext context) => Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          height: MediaQuery.of(context).size.height * 1,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              //SizedBox(height: 50),
+              Container(
+                height: 5,
+                width: 300,
+                decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: new BorderRadius.circular(25.0)),
+              ),
+              //SizedBox(height: 100),
+              Text(
+                'Создание заявки',
+                style: TextStyle(fontSize: 32),
+              ),
+              //SizedBox(height: 20),
+              Container(
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  child: _regExpAddress(_address, 14.0)),
+              Container(
+                  padding: EdgeInsets.all(12),
+                  child: TextFormField(
+                    //controller: nameController,
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.blue,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                      /*  icon: IconButton(
+                      icon: Icon(
+                    Icons.portrait_rounded,
+                    size: 32,
+                  )), */
+                      labelText: 'Описание',
+                    ),
+                  )),
+              //SizedBox(height: 50),
+
+              //SizedBox(height: 8),
+              
+
+              //SizedBox(height: 16),
+                                    Text(
+                        'Фото объекта:',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                        textAlign: TextAlign.start,
+                      ),
+              _imagesList.length <= 0
+                  ? Container(
+                      child: InkWell(
+                          onTap: () => getImage(context),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.add_a_photo_rounded,
+                                    color: Colors.blue),
+                                Text('  Добавить фото',
+                                    style: TextStyle(
+                                        fontSize: 16, color: Colors.blue))
+                              ])))
+                  : Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          for (var image in _imagesList)
+                            Container(
+                            decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: new BorderRadius.circular(25.0)),
+                            margin: EdgeInsets.all(4),
+                            child: InkWell(
+                              onTap: () => {},
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          new BorderRadius.circular(25.0)),
+                                  width: 56,
+                                  height: 56,
+                                  child: Stack(fit: StackFit.expand, children: [
+                                    Image.file(image, fit: BoxFit.cover),
+                                    Icon(
+                                      Icons.close_rounded,
+                                      size: 36,
+                                      color: Colors.white,
+                                    )
+                                  ])),
+                            )),
+                          Container(
+                            decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: new BorderRadius.circular(25.0)),
+                            margin: EdgeInsets.all(4),
+                            child: InkWell(
+                              onTap: () => getImage(context),
+                              child: Container(
+                                width: 56,
+                                height: 56,
+                                color: Colors.blue,
+                                child: Icon(
+                                  Icons.add_a_photo_rounded,
+                                  size: 36,
+                                  color: Colors.white,
+                                ),
+                              ))),
+                        ],
+                      ),
+                    ),
+                    Container(
+                margin: EdgeInsets.all(12),
+/*                   decoration: BoxDecoration(
+                    
+                      borderRadius: new BorderRadius.circular(25.0),
+                      border: Border.all(width: 0, color: Colors.grey)), */
+                  child: Column(
+                    //mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'Данный объект:',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                        textAlign: TextAlign.start,
+                      ),
+                      SizedBox(height: 8),
+                      Padding(
+                          padding: EdgeInsets.only(left: 12),
+                          child: RadioButton(
+                            description: "Имеет ветхое состояние",
+                            value: "Имеет ветхое состояние",
+                            groupValue: "Имеет ветхое состояние",
+                            onChanged: (value) => setState(
+                              () => print('object'),
+                            ),
+                          )),
+                      Padding(
+                          padding: EdgeInsets.only(left: 12),
+                          child: RadioButton(
+                              description: "Не зарегистрирован",
+                              value: "Не зарегистрирован",
+                              groupValue: "Text alignment left",
+                              onChanged: (value) => setState(
+                                    () => print('object'),
+                                  ))),
+
+                      //Text('-или-', style: TextStyle(color: Colors.grey, fontSize: 14)),
+
+                      //textPosition: RadioButtonTextPosition.left,
+                    ],
+                  )),
+              FlatButton(
+                padding: EdgeInsets.all(18),
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                    side: BorderSide(color: Colors.blue),
+                    borderRadius: BorderRadius.circular(25.0)),
+                onPressed: () => setState(() {}),
+                child: Text(
+                  'Отправить отчет',
+                  style: TextStyle(
+                      color: Colors.blue, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          )),
+    );
+  }
+
+/* 
   void acceptNewFlag() {
     var alertStyle = AlertStyle(
       animationType: AnimationType.fromBottom,
@@ -439,7 +640,7 @@ class _MapsPageState extends State<MapsPage> {
             child: Icon(Icons.attach_file, color: Colors.white),
           ), */
         ]).show();
-  }
+  } */
 
   Future<String> _getStreet(lat, lon) async {
     var url =
