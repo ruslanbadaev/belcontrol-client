@@ -18,6 +18,7 @@ import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:image_gallery/image_gallery.dart';
 import 'package:image_picker/image_picker.dart';
 import '../utils/toast.dart';
+import '../utils/request.dart';
 import '../main.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -29,8 +30,7 @@ class MapsPage extends StatefulWidget {
   _MapsPageState createState() => new _MapsPageState();
 }
 
-//String data = matches.forEach((key) => print(str.substring(key.start, key.end)));
-
+//parse adress
 Widget _regExpAddress(data, fontSize) {
   RegExp exp = RegExp(r'name="(.+?)"');
   return Text(
@@ -95,6 +95,7 @@ class _MapsPageState extends State<MapsPage> {
   FToast fToast;
   File _image;
   List<File> _imagesList = [];
+  List _images = [];
   final picker = ImagePicker();
 
   Future getImage(context) async {
@@ -102,10 +103,12 @@ class _MapsPageState extends State<MapsPage> {
     //final pickedFile = await picker.getImage(source: ImageSource.camera);
     //final pickedFile = await picker.getImage(source: ImageSource.camera);
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
-
+    print(pickedFile.path);
     if (pickedFile != null) {
       await setState(() {
         _image = File(pickedFile.path);
+
+        _images.add(pickedFile);
         _imagesList.add(_image);
       });
     } else {
@@ -282,9 +285,13 @@ class _MapsPageState extends State<MapsPage> {
                 style: TextStyle(fontSize: 32),
               ),
               //SizedBox(height: 20),
-              Container(
+/*               Container(
                   width: MediaQuery.of(context).size.width * 0.8,
-                  child: _regExpAddress(_address, 14.0)),
+                  child: _regExpAddress(_address, 14.0)), */
+              Text(
+                '1. Заполните описание',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
               Container(
                   padding: EdgeInsets.all(12),
                   child: TextFormField(
@@ -316,14 +323,17 @@ class _MapsPageState extends State<MapsPage> {
               //SizedBox(height: 50),
 
               //SizedBox(height: 8),
-              
 
               //SizedBox(height: 16),
-                                    Text(
-                        'Фото объекта:',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                        textAlign: TextAlign.start,
-                      ),
+/*               Text(
+                'Фото объекта:',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+                textAlign: TextAlign.start,
+              ), */
+              Text(
+                '2. Добавьте фото объекта',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
               _imagesList.length <= 0
                   ? Container(
                       child: InkWell(
@@ -343,49 +353,54 @@ class _MapsPageState extends State<MapsPage> {
                         children: [
                           for (var image in _imagesList)
                             Container(
-                            decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: new BorderRadius.circular(25.0)),
-                            margin: EdgeInsets.all(4),
-                            child: InkWell(
-                              onTap: () => {},
-                              child: Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius:
-                                          new BorderRadius.circular(25.0)),
-                                  width: 56,
-                                  height: 56,
-                                  child: Stack(fit: StackFit.expand, children: [
-                                    Image.file(image, fit: BoxFit.cover),
-                                    Icon(
-                                      Icons.close_rounded,
+                                decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius:
+                                        new BorderRadius.circular(25.0)),
+                                margin: EdgeInsets.all(4),
+                                child: InkWell(
+                                  onTap: () => {},
+                                  child: Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              new BorderRadius.circular(25.0)),
+                                      width: 56,
+                                      height: 56,
+                                      child: Stack(
+                                          fit: StackFit.expand,
+                                          children: [
+                                            Image.file(image,
+                                                fit: BoxFit.cover),
+                                            Icon(
+                                              Icons.close_rounded,
+                                              size: 36,
+                                              color: Colors.white,
+                                            )
+                                          ])),
+                                )),
+                          Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius:
+                                      new BorderRadius.circular(25.0)),
+                              margin: EdgeInsets.all(4),
+                              child: InkWell(
+                                  onTap: () => getImage(context),
+                                  child: Container(
+                                    width: 56,
+                                    height: 56,
+                                    color: Colors.blue,
+                                    child: Icon(
+                                      Icons.add_a_photo_rounded,
                                       size: 36,
                                       color: Colors.white,
-                                    )
-                                  ])),
-                            )),
-                          Container(
-                            decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: new BorderRadius.circular(25.0)),
-                            margin: EdgeInsets.all(4),
-                            child: InkWell(
-                              onTap: () => getImage(context),
-                              child: Container(
-                                width: 56,
-                                height: 56,
-                                color: Colors.blue,
-                                child: Icon(
-                                  Icons.add_a_photo_rounded,
-                                  size: 36,
-                                  color: Colors.white,
-                                ),
-                              ))),
+                                    ),
+                                  ))),
                         ],
                       ),
                     ),
-                    Container(
-                margin: EdgeInsets.all(12),
+              Container(
+                  margin: EdgeInsets.all(12),
 /*                   decoration: BoxDecoration(
                     
                       borderRadius: new BorderRadius.circular(25.0),
@@ -393,10 +408,17 @@ class _MapsPageState extends State<MapsPage> {
                   child: Column(
                     //mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      Text(
+                      
+/*                       Text(
                         'Данный объект:',
                         style: TextStyle(fontSize: 16, color: Colors.grey),
                         textAlign: TextAlign.start,
+                      ), */
+                      Text(
+                        '3. Укажите тип объекта',
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.start
                       ),
                       SizedBox(height: 8),
                       Padding(
@@ -430,7 +452,10 @@ class _MapsPageState extends State<MapsPage> {
                 shape: RoundedRectangleBorder(
                     side: BorderSide(color: Colors.blue),
                     borderRadius: BorderRadius.circular(25.0)),
-                onPressed: () => setState(() {}),
+                onPressed: () => {
+                  print('aaaaaaaaaa'),
+                  Request.sendReport('123', 'address', 'description', _images,  'type')
+                },
                 child: Text(
                   'Отправить отчет',
                   style: TextStyle(

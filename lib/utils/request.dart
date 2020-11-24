@@ -35,7 +35,7 @@ class Request {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => MyHomePage()),
-           //MaterialPageRoute(builder: (context) => MyHomePage()),
+          //MaterialPageRoute(builder: (context) => MyHomePage()),
         );
         return true;
       } else {
@@ -50,8 +50,118 @@ class Request {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => AuthPage()),
-      ); 
+      );
       return false;
+    }
+  }
+
+  static void sendReport(userId, address, description, images, type) async {
+    try {
+      print(images);
+      print('-----------------');
+      var uri = Uri.parse('$host/reports');
+      var request = http.MultipartRequest('POST', uri);
+      request.fields['title'] = jsonEncode(address);
+      request.fields['text'] = jsonEncode(description);
+      request.fields['creator'] = jsonEncode('test');
+      // прикрепляем файлы
+      for (var i = 0; i < images.length; i++) {
+        request.files.add(await http.MultipartFile.fromPath(
+          '${i}',
+          images[i].path,
+        ));
+      }
+
+      request.headers.addAll({
+        'Authorization': 'Bearer ${await SharedPreferencesRequest.getToken()}'
+      });
+      var response = await request.send();
+      response.stream.transform(utf8.decoder).listen((value) {
+        print(value);
+      });
+      if (response.statusCode == 200) {
+        //_refresh();
+        print('Uploaded!');
+        //InfoAlert.infoAlert(context, 'Успех', 'Заявка успешно создана.');
+      } else {
+        //await InfoAlert.infoAlert(
+        //context, 'Ошибка на сервере', 'Создание заявки не удалось.');
+      }
+    } catch (e) {
+      //await InfoAlert.infoAlert(context, 'Внутреняя ошибка', '$e');
+      print('CATCH 213::: $e');
+    }
+  }
+
+  static Future getReports() async {
+    try {
+      var url = '$host/reports';
+      print(await SharedPreferencesRequest.getToken());
+      print(url);
+      var response = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${await SharedPreferencesRequest.getToken()}',
+      });
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        //print(' ${jsonDecode(response.body)}');
+
+        return jsonDecode(response.body);
+      } else {
+        return {};
+      }
+    } catch (error) {
+      return {};
+    }
+  }
+
+  static Future getAds() async {
+    try {
+      var url = '$host/ads';
+      print(await SharedPreferencesRequest.getToken());
+      print(url);
+      var response = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${await SharedPreferencesRequest.getToken()}',
+      });
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        print(' ${jsonDecode(response.body)}');
+
+        return jsonDecode(response.body);
+      } else {
+        return {};
+      }
+    } catch (error) {
+      return {};
+    }
+  }
+
+  static Future getPoints() async {
+    try {
+      var url = '$host/points';
+      print(await SharedPreferencesRequest.getToken());
+      print(url);
+      var response = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${await SharedPreferencesRequest.getToken()}',
+      });
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        print(' ${jsonDecode(response.body)}');
+
+        return jsonDecode(response.body);
+      } else {
+        return {};
+      }
+    } catch (error) {
+      return {};
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
+import '../utils/request.dart';
 
 class AccountPage extends StatefulWidget {
   AccountPage({Key key, this.title}) : super(key: key);
@@ -16,8 +17,9 @@ class _AccountPageState extends State<AccountPage> {
       body: new Container(
         child: new Column(
           children: <Widget>[
-            new Text('_AccountPageState'),
-            new Text('Item2'),
+FlatButton(onPressed: () => Request.getReports(), child: Text('get Reports')),
+FlatButton(onPressed: () => Request.getAds(), child: Text('get Ads')),
+FlatButton(onPressed: () => Request.getPoints(), child: Text('get Points')),
           ],
         ),
       ),

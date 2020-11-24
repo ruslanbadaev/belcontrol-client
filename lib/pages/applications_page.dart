@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pagewise/flutter_pagewise.dart';
+
+import '../utils/request.dart';
 import '../main.dart';
 
 class ApplicationsPage extends StatefulWidget {
@@ -10,13 +13,42 @@ class ApplicationsPage extends StatefulWidget {
 }
 
 class _ApplicationsPageState extends State<ApplicationsPage> {
+  void initState() {
+    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async => {
+          setState(() async {
+            reports = await Request.getReports();
+          })
+        });
+  }
+
+  Map reports = {};
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       body: new Container(
-        child: new Column(
-          children: <Widget>[
-            Container(
+        child: /* new Column(
+          children: <Widget>[ */
+            PagewiseGridView.count(
+              pageSize: 10,
+              crossAxisCount: 2,
+              mainAxisSpacing: 8.0,
+              crossAxisSpacing: 8.0,
+              childAspectRatio: 0.555,
+              
+              padding: EdgeInsets.all(15.0),
+              noItemsFoundBuilder: (context) {
+                return Text('No Items Found');
+              },
+              itemBuilder: (context, entry, index) {
+                // return a widget that displays the entry's data
+              },
+              pageFuture: (pageIndex) {
+                // return a Future that resolves to a list containing the page's data
+              },
+            ),
+/*             Container(
                 height: 100,
                 width: MediaQuery.of(context).size.width * 0.95,
                 decoration: BoxDecoration(
@@ -27,47 +59,9 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                   ],
                 ),
                 margin: EdgeInsets.all(12),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                          //height: 100,
-                          child: ClipRRect(
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(8),
-                                  bottomLeft: Radius.circular(8)),
-                              child: Image.network(
-                                  'https://www.proreklamu.com/media/upload/news/49779/12281.jpg'))),
-                      Container(
-                          //color: Colors.red,
-                          width: MediaQuery.of(context).size.width * 0.65,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      margin: EdgeInsets.all(4),
-                                        child: Text('Имя Фамилия',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold))),
-                                    Container(
-                                      margin: EdgeInsets.all(4),
-                                        child: Text('Сегодня в 22:23',
-                                        style: TextStyle(color: Colors.grey))),
-                                  ]),
-                              Container(
-                                      margin: EdgeInsets.all(4),
-                                        child: Text(
-                                  'Здесь короткое описание. Остальное на новой странице после нажатия на заявку.')),
-                              SizedBox()
-                            ],
-                          ))
-                    ])),
-          ],
-        ),
+                child: Text('${reports}')), */
+          //],
+        //),
       ),
       floatingActionButton: new FloatingActionButton(
         onPressed: _onFloatingActionButtonPressed,

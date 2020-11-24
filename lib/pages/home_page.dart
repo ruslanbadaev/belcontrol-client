@@ -33,7 +33,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: _isAuth
           ? AppBar(
-              title: Text('Название приложения и логотип'),
+            backgroundColor: Colors.white,
+              title: Text('Название приложения и логотип', style: TextStyle(color: Colors.black),),
             )
           : null,
       body: _isAuth ? _children[_currentIndex] : AuthPage(),
