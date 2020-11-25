@@ -93,9 +93,9 @@ class Request {
     }
   }
 
-  static Future getReports() async {
+  static Future getReports(int page) async {
     try {
-      var url = '$host/reports';
+      var url = '$host/reports?limit=2&page=$page';
       print(await SharedPreferencesRequest.getToken());
       print(url);
       var response = await http.get(url, headers: {

@@ -17,9 +17,14 @@ class _AccountPageState extends State<AccountPage> {
       body: new Container(
         child: new Column(
           children: <Widget>[
-FlatButton(onPressed: () => Request.getReports(), child: Text('get Reports')),
-FlatButton(onPressed: () => Request.getAds(), child: Text('get Ads')),
-FlatButton(onPressed: () => Request.getPoints(), child: Text('get Points')),
+            FlatButton(
+                onPressed: () => Request.getReports(0),
+                child: Text('get Reports')),
+            FlatButton(
+                onPressed: () => Request.getAds(), child: Text('get Ads')),
+            FlatButton(
+                onPressed: () => Request.getPoints(),
+                child: Text('get Points')),
           ],
         ),
       ),

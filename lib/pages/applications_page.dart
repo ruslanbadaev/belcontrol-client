@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pagewise/flutter_pagewise.dart';
-
+import 'package:loadmore/loadmore.dart';
+//import 'package:photo_view/photo_view.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:full_screen_image/full_screen_image.dart';
+import 'package:zoomable_image/zoomable_image.dart';
+//import 'package:flutter_pagewise/flutter_pagewise.dart';
+import '../constants.dart' as constants;
 import '../utils/request.dart';
 import '../main.dart';
 
@@ -17,37 +22,98 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
     print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async => {
-          setState(() async {
-            reports = await Request.getReports();
-          })
+          _refresh()
+          //setState(() async {
+          //reports = await Request.getReports();
+          //})
         });
   }
 
-  Map reports = {};
+  int get count => reports.length;
+  List reports = [];
+  int nextPage = 1;
+  int lengthOfPages = 0;
+  void load() {
+    print("load");
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       body: new Container(
-        child: /* new Column(
-          children: <Widget>[ */
-            PagewiseGridView.count(
-              pageSize: 10,
-              crossAxisCount: 2,
-              mainAxisSpacing: 8.0,
-              crossAxisSpacing: 8.0,
-              childAspectRatio: 0.555,
-              
-              padding: EdgeInsets.all(15.0),
-              noItemsFoundBuilder: (context) {
-                return Text('No Items Found');
+        child: RefreshIndicator(
+          child: LoadMore(
+            isFinish: count >= lengthOfPages,
+            onLoadMore: _loadMore,
+            child: ListView.builder(
+              itemBuilder: (BuildContext context, int index) {
+                final double height = MediaQuery.of(context).size.height;
+                return Container(
+                  height: 440.0,
+                  alignment: Alignment.center,
+                  child: Column(children: [
+ /*                    FlatButton(
+                        child: Text('resize'),
+                        onPressed: () => setState(() {
+                              foolscreenImage = !foolscreenImage;
+                            })), */
+                    CarouselSlider(
+                      options: 
+                           CarouselOptions(
+                              aspectRatio: 2.0,
+                              enlargeCenterPage: true,
+                              enableInfiniteScroll: false,
+                              initialPage: 0,
+                              autoPlay: false,
+                            ),
+                      items: List.generate(reports[index]['files'].length, (i) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return Container(
+                                width: MediaQuery.of(context).size.width,
+                                margin: EdgeInsets.symmetric(horizontal: 5.0),
+                                decoration: BoxDecoration(color: Colors.amber),
+/*                                 child: Image.network(
+                                    '${constants.host}/${reports[index]['files'][i]['path']}') */
+                                child: FullScreenWidget(
+                                  backgroundColor: Colors.black12,
+                                  child: Center(
+                                    child: Hero(
+                                      transitionOnUserGestures: true,
+                                      //tag: "customBackground",
+                                      tag: '$index$i',
+                                      child: ClipRRect(
+                                        
+                                        borderRadius: BorderRadius.circular(25),
+                                        //aaaaaaaaaaaa здесь некоторое говно
+                                        child: ZoomableImage(new NetworkImage(
+                                          '${constants.host}/${reports[index]['files'][i]['path']}'
+                                          //, fit: BoxFit.scaleDown,
+                                        )),
+                                      ),
+                                    ),
+                                  ),
+                                ));
+                          },
+                        );
+                      }).toList(),
+                    )
+                  ]),
+
+                  //Text(reports[index].toString()),
+                );
               },
-              itemBuilder: (context, entry, index) {
-                // return a widget that displays the entry's data
-              },
-              pageFuture: (pageIndex) {
-                // return a Future that resolves to a list containing the page's data
-              },
+              itemCount: count,
             ),
+            whenEmptyLoad: false,
+            delegate: DefaultLoadMoreDelegate(),
+            textBuilder: DefaultLoadMoreTextBuilder.english,
+          ),
+          onRefresh: _refresh,
+        ),
+        /* new Column(
+          children: <Widget>[ */
+
 /*             Container(
                 height: 100,
                 width: MediaQuery.of(context).size.width * 0.95,
@@ -60,7 +126,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                 ),
                 margin: EdgeInsets.all(12),
                 child: Text('${reports}')), */
-          //],
+        //],
         //),
       ),
       floatingActionButton: new FloatingActionButton(
@@ -69,6 +135,38 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
         child: new Icon(Icons.add),
       ),
     );
+  }
+
+  Future<bool> _loadMore() async {
+    print("onLoadMore");
+    Map response = await Request.getReports(nextPage);
+    setState(() {
+      for (var report in response['docs']) {
+        reports.add(report);
+      }
+
+      nextPage = response['nextPage'];
+      if (!response['hasNextPage']) lengthOfPages = reports.length;
+    });
+    //await Future.delayed(Duration(seconds: 0, milliseconds: 2000));
+    load();
+    return true;
+  }
+
+  Future<void> _refresh() async {
+    //await Future.delayed(Duration(seconds: 0, milliseconds: 2000));
+    reports.clear();
+    Map response = await Request.getReports(nextPage);
+    setState(() {
+      for (var report in response['docs']) {
+        reports.add(report);
+      }
+
+      //reports = response['docs'];
+      nextPage = response['nextPage'];
+      lengthOfPages = response['docs'].length * response['totalPages'];
+    });
+    //load();
   }
 
   void _onFloatingActionButtonPressed() {}
