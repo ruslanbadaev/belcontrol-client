@@ -10,6 +10,9 @@ import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.da
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';
 import 'dart:io';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:full_screen_image/full_screen_image.dart';
+import 'package:pinch_zoom/pinch_zoom.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:icon_shadow/icon_shadow.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -20,6 +23,7 @@ import 'package:image_picker/image_picker.dart';
 import '../utils/toast.dart';
 import '../utils/request.dart';
 import '../main.dart';
+import '../constants.dart' as constants;
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class MapsPage extends StatefulWidget {
@@ -45,46 +49,10 @@ String test = 'toster';
 String _address = '';
 bool _activePointer = false;
 Map coordinatesOfMarkers = {'x': 44.7555, 'y': 39.8491};
-List<Marker> markersList = [
-  Marker(
-    width: 220.0,
-    height: 220.0,
-    point: LatLng(44.7555, 39.8491),
-    builder: (ctx) => Container(
-        child: Column(children: [
-      Icon(
-        Icons.place_rounded,
-        size: 36,
-        color: Colors.red,
-      ),
-      Text(
-        ' _regExpAddress(_address)',
-        textAlign: TextAlign.center,
-        style: TextStyle(),
-      )
-    ])),
-  ),
-  Marker(
-    width: 320.0,
-    height: 320.0,
-    point: LatLng(44.7666, 39.8491),
-    builder: (ctx) => Container(
-        child: Column(children: [
-      Icon(
-        Icons.place_rounded,
-        size: 36,
-        color: Colors.red,
-      ),
-      Text(
-        '${''}',
-        textAlign: TextAlign.center,
-        style: TextStyle(),
-      )
-    ])),
-  )
-];
 
 class _MapsPageState extends State<MapsPage> {
+  Future getMarkersData() {}
+
   @override
   void initState() {
     super.initState();
@@ -97,6 +65,7 @@ class _MapsPageState extends State<MapsPage> {
   List<File> _imagesList = [];
   List _images = [];
   final picker = ImagePicker();
+  Map markerData = {};
 
   Future getImage(context) async {
     Navigator.pop(context);
@@ -129,24 +98,124 @@ class _MapsPageState extends State<MapsPage> {
 
   @override //_getAddressFromHtml(_address)
   Widget build(BuildContext context) {
+    List<Marker> markersList = [
+      Marker(
+        height: 52,
+        width: 46,
+        point: LatLng(44.7555, 39.8491),
+        builder: (ctx) => InkWell(
+            onTap: () => {/* 
+                  if (!_activePointer)
+
+                  setState(() async {
+                    markerData = await Request.getReportById('5fb98802bf4a5673e0653117');
+                  })
+                    ,
+                  showMaterialModalBottomSheet(
+                    //barrierColor: Colors.white,
+                    duration: Duration(milliseconds: 600),
+                    backgroundColor: Colors.white,
+
+                    expand: false,
+                    context: context,
+                    builder: (BuildContext context) => Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            CarouselSlider(
+                      options: CarouselOptions(
+                        aspectRatio: 2.0,
+                        enlargeCenterPage: true,
+                        enableInfiniteScroll: false,
+                        initialPage: 0,
+                        autoPlay: false,
+                      ),
+                      items: List.generate(markerData['files'].length, (i) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return Container(
+                                width: MediaQuery.of(context).size.width*0.8,
+                                margin: EdgeInsets.symmetric(horizontal: 5.0),
+                                decoration: BoxDecoration(/* color: Colors.amber */),
+/*                                 child: Image.network(
+                                    '${constants.host}/${reports[index]['files'][i]['path']}') */
+                                child: FullScreenWidget(
+                                  backgroundColor: Colors.black12,
+                                  child: Center(
+                                    child: Hero(
+                                      transitionOnUserGestures: true,
+                                      //tag: "customBackground",
+                                      tag: '${markerData.toString()}$i',
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(25),
+                                        //aaaaaaaaaaaa здесь некоторое говно
+                                        child: PinchZoom(
+                                          image: Image.network(
+                                              '${constants.host}/${markerData['files'][i]['path']}',fit: BoxFit.fitWidth),
+                                          zoomedBackgroundColor:
+                                              Colors.black.withOpacity(0.5),
+                                          resetDuration:
+                                              const Duration(milliseconds: 100),
+                                          maxScale: 2.5,
+                                          
+                                        ),
+/*                                         child: new Image.network(
+                                          '${constants.host}/${reports[index]['files'][i]['path']}'
+                                          , fit: BoxFit.cover,
+                                          //height: 200, width: 200,
+                                        ), */
+                                      ),
+                                    ),
+                                  ),
+                                ));
+                          },
+                        );
+                      }).toList(),
+                    ), 
+                          ],
+                        )),
+                  ) */
+                },
+            child: Container(
+                //color: Colors.white,
+                child: Column(children: [
+              Icon(
+                Icons.place_rounded,
+                size: 36,
+                color: Colors.red,
+              ),
+/*           Text(
+            'some text',
+            textAlign: TextAlign.center,
+            style: TextStyle(),
+          ) */
+            ]))),
+      ),
+    ];
     return new Scaffold(
+        resizeToAvoidBottomPadding: false,
         body: new Container(
             child: new FlutterMap(
           options: new MapOptions(
               center: new LatLng(44.7664, 39.8531),
               zoom: 13.0,
               onTap: (polyline) async => {
-                    setState(() {
-                      coordinatesOfMarkers = {
-                        'x': polyline.latitude,
-                        'y': polyline.longitude
-                      };
-                    }),
-                    _address =
-                        await _getStreet(polyline.latitude, polyline.longitude),
-                    setState(() {
-                      _address = _address;
-                    })
+                    if (_activePointer)
+                      {
+                        setState(() {
+                          coordinatesOfMarkers = {
+                            'x': polyline.latitude,
+                            'y': polyline.longitude
+                          };
+                        }),
+                        _address = await _getStreet(
+                            polyline.latitude, polyline.longitude),
+                        setState(() {
+                          _address = _address;
+                        })
+                      }
                   }), //13/44.7664/39.8531
           layers: [
             new TileLayerOptions(
@@ -154,8 +223,7 @@ class _MapsPageState extends State<MapsPage> {
                     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                 subdomains: ['a', 'b', 'c']),
             new MarkerLayerOptions(
-              markers: markersList,
-              //rebuild: markersList
+              markers: !_activePointer ? markersList : [],
             ),
             new MarkerLayerOptions(
               markers: [
@@ -166,34 +234,18 @@ class _MapsPageState extends State<MapsPage> {
                         _activePointer ? coordinatesOfMarkers['x'] : 0,
                         _activePointer ? coordinatesOfMarkers['y'] : 0),
                     builder: (ctx) => Container(
-                          child: Container(
-                              //color: Colors.red,
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                _activePointer
-                                    ? /* IconShadowWidget(
-                                        Icon(
-                                          Icons.filter_tilt_shift_rounded,
-                                          size: 36,
-                                          color: Colors.blue,
-                                        ),
-                                        shadowColor: Colors.blue.shade300,
-                                      ) */
-                                    SpinKitDoubleBounce(
-                                        color: Colors.red,
-                                        size: 36.0,
-                                      )
-                                    : null,
-/*                     Text(
-                      '${coordinatesOfMarkers['x']}',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(),
-                    ) */
-                              ])),
-                        ))
+                            child: Container(
+                                child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                              _activePointer
+                                  ? SpinKitDoubleBounce(
+                                      color: Colors.red,
+                                      size: 36.0,
+                                    )
+                                  : null,
+                            ]))))
               ],
-              //rebuild: markersList
             ),
           ],
         )),
@@ -408,18 +460,15 @@ class _MapsPageState extends State<MapsPage> {
                   child: Column(
                     //mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      
 /*                       Text(
                         'Данный объект:',
                         style: TextStyle(fontSize: 16, color: Colors.grey),
                         textAlign: TextAlign.start,
                       ), */
-                      Text(
-                        '3. Укажите тип объекта',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.start
-                      ),
+                      Text('3. Укажите тип объекта',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.start),
                       SizedBox(height: 8),
                       Padding(
                           padding: EdgeInsets.only(left: 12),
@@ -454,7 +503,8 @@ class _MapsPageState extends State<MapsPage> {
                     borderRadius: BorderRadius.circular(25.0)),
                 onPressed: () => {
                   print('aaaaaaaaaa'),
-                  Request.sendReport('123', 'address', 'description', _images,  'type')
+                  Request.sendReport(
+                      '123', 'address', 'description', _images, 'type')
                 },
                 child: Text(
                   'Отправить отчет',

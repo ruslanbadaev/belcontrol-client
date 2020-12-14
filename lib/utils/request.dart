@@ -141,6 +141,30 @@ class Request {
     }
   }
 
+  static Future getReportById(id) async {
+    try {
+      var url = '$host/reports/$id';
+      print(await SharedPreferencesRequest.getToken());
+      print(url);
+      var response = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${await SharedPreferencesRequest.getToken()}',
+      });
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        print(' ${jsonDecode(response.body)}');
+
+        return jsonDecode(response.body);
+      } else {
+        return {};
+      }
+    } catch (error) {
+      return {};
+    }
+  }
+
   static Future getPoints() async {
     try {
       var url = '$host/points';
